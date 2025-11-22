@@ -1,6 +1,6 @@
 # Mailbucket Frontend
 
-A privacy-focused temporary email service frontend
+A privacy-focused temporary email service frontend for https://mailbucket.cc
 
 ## Features
 
