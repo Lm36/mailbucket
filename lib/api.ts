@@ -106,14 +106,36 @@ export const api = {
     if (params.search) query.set('search', params.search)
 
     const res = await fetch(`${API_URL}/api/v1/${token}/emails?${query}`)
-    if (!res.ok) throw new Error('Failed to fetch emails')
+    if (!res.ok) {
+      const error: any = new Error('Failed to fetch emails')
+      error.status = res.status
+      try {
+        const errorData = await res.json()
+        error.detail = errorData.detail
+        error.message = errorData.detail || error.message
+      } catch (e) {
+        // If we can't parse the error response, use the default message
+      }
+      throw error
+    }
     return res.json()
   },
 
   async getEmail(token: string, emailId: string, markRead = true): Promise<EmailDetail> {
     const query = markRead ? '' : '?mark_read=false'
     const res = await fetch(`${API_URL}/api/v1/${token}/emails/${emailId}${query}`)
-    if (!res.ok) throw new Error('Failed to fetch email')
+    if (!res.ok) {
+      const error: any = new Error('Failed to fetch email')
+      error.status = res.status
+      try {
+        const errorData = await res.json()
+        error.detail = errorData.detail
+        error.message = errorData.detail || error.message
+      } catch (e) {
+        // If we can't parse the error response, use the default message
+      }
+      throw error
+    }
     return res.json()
   },
 
@@ -121,7 +143,18 @@ export const api = {
     const res = await fetch(`${API_URL}/api/v1/${token}/emails/${emailId}`, {
       method: 'DELETE',
     })
-    if (!res.ok) throw new Error('Failed to delete email')
+    if (!res.ok) {
+      const error: any = new Error('Failed to delete email')
+      error.status = res.status
+      try {
+        const errorData = await res.json()
+        error.detail = errorData.detail
+        error.message = errorData.detail || error.message
+      } catch (e) {
+        // If we can't parse the error response, use the default message
+      }
+      throw error
+    }
   },
 
   getAttachmentUrl(token: string, emailId: string, attachmentId: string): string {

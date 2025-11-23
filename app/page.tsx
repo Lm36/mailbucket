@@ -72,7 +72,7 @@ export default function Home() {
     }
   }
 
-  const createNewAddress = async () => {
+  const createNewAddress = async (oldEmail?: string) => {
     setLoading(true)
     try {
       const payload: { username?: string; domain?: string } = {}
@@ -95,6 +95,11 @@ export default function Home() {
       setCustomUsername("")
       setShowNewEmailDialog(false)
       fetchEmails(data.token)
+
+      // Show expiry message if this is an auto-rotation
+      if (oldEmail) {
+        alert(`${oldEmail} has expired. New address: ${data.email}`)
+      }
     } catch (error: any) {
       console.error("Failed to create address", error)
       if (error.status === 409) {
@@ -107,6 +112,13 @@ export default function Home() {
     }
   }
 
+  const handleExpiredAddress = async () => {
+    const oldEmail = address?.email
+    if (oldEmail) {
+      await createNewAddress(oldEmail)
+    }
+  }
+
   const fetchEmails = async (token: string, silent = false) => {
     if (!silent) setLoading(true)
     try {
@@ -116,8 +128,12 @@ export default function Home() {
       })
       setEmails(data.emails)
       setLastRefresh(new Date())
-    } catch (error) {
+    } catch (error: any) {
       console.error("Failed to fetch emails", error)
+      // Check if address has expired
+      if (error.status === 404 && error.detail === "Address has expired") {
+        await handleExpiredAddress()
+      }
     } finally {
       if (!silent) setLoading(false)
     }
@@ -131,9 +147,14 @@ export default function Home() {
       setSelectedEmail(detail)
       // Update the email in the list to mark as read
       setEmails(emails.map(e => e.id === email.id ? { ...e, is_read: true } : e))
-    } catch (error) {
+    } catch (error: any) {
       console.error("Failed to fetch email detail", error)
-      alert("Failed to load email. Please try again.")
+      // Check if address has expired
+      if (error.status === 404 && error.detail === "Address has expired") {
+        await handleExpiredAddress()
+      } else {
+        alert("Failed to load email. Please try again.")
+      }
     } finally {
       setLoading(false)
     }
@@ -147,9 +168,14 @@ export default function Home() {
       if (selectedEmail?.id === emailId) {
         setSelectedEmail(null)
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Failed to delete email", error)
-      alert("Failed to delete email. Please try again.")
+      // Check if address has expired
+      if (error.status === 404 && error.detail === "Address has expired") {
+        await handleExpiredAddress()
+      } else {
+        alert("Failed to delete email. Please try again.")
+      }
     }
   }
 
