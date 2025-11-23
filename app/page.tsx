@@ -569,7 +569,7 @@ export default function Home() {
             <p className="text-xs sm:text-sm text-muted-foreground">
               Leave blank for a random email address, or enter a custom username (3-64 chars, alphanumeric + . _ -)
             </p>
-            <Button onClick={createNewAddress} disabled={loading} className="w-full min-h-[44px] text-base">
+            <Button onClick={() => createNewAddress()} disabled={loading} className="w-full min-h-[44px] text-base">
               {loading ? "Creating..." : "Generate Email"}
             </Button>
           </div>
